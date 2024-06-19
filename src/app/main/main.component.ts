@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCardModule } from '@angular/material/card';
@@ -8,17 +8,11 @@ import { MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { AppServiceService } from '../services/AppService.service';
-
-interface Country {
-  id: number;
-  country: string;
-}
-
-interface City {
-  id: number;
-  country_id: number;
-  city: string;
-}
+import { Country } from '../interfaces/Country';
+import { City } from '../interfaces/City';
+import { DataAppService } from '../services/dataApp.service';
+import { WeatherServiceService } from '../services/weatherService.service';
+import { RateService } from '../services/rate.service';
 
 @Component({
   selector: 'app-main',
@@ -39,8 +33,11 @@ interface City {
 })
 export class MainComponent {
 
-  private _formBuilder = inject( FormBuilder );
-  private _appService  = inject( AppServiceService );
+  private _formBuilder    = inject( FormBuilder );
+  private _appService     = inject( AppServiceService );
+  private _dataApp        = inject( DataAppService );
+  private _weatherService = inject( WeatherServiceService );
+  private _rateService    = inject( RateService );
 
   isLinear: boolean = false;
 
@@ -48,27 +45,29 @@ export class MainComponent {
     country: [ 0, Validators.required],
     city:    [ 0, Validators.required],
   });
-  BudgetForm = this._formBuilder.group({
+  budgetForm = this._formBuilder.group({
     baget: [ 0, Validators.required],
   });
 
-  countries: Country[] = [
-    {id: 1, country: 'country 01'},
-    {id: 2, country: 'country 02'},
-    {id: 3, country: 'country 03'},
-  ];
+  countries: Country[] = [];
+  cities:    City[]    = [];
 
-  cities: City[] = [
-    {id: 1, country_id: 1, city: 'city 01'},
-    {id: 2, country_id: 1, city: 'city 02'},
-    {id: 3, country_id: 2, city: 'city 03'},
-    {id: 4, country_id: 2, city: 'city 04'},
-    {id: 5, country_id: 3, city: 'city 05'},
-    {id: 6, country_id: 3, city: 'city 06'},
-  ];
-
+  summary: any = {
+    country:  '',
+    city:     '',
+    temp:     0,
+    temp_min: 0,
+    temp_max: 0,
+    rate:     0,
+    total:    0,
+    coin:     '',
+  };
   langs: any = this._appService.getContent();
-  lang: any = {};
+  lang: any  = {};
+
+  weather: any = {};
+
+  private gradeK: number = 273.15;
 
   constructor(){
   }
@@ -76,11 +75,41 @@ export class MainComponent {
   ngOnInit(): void {
     this.langs = this._appService.getContent();
     this.lang  = this.langs[ 'es' ];
-    console.log( this.lang );
+    this.countries = this._dataApp.getContries();
+    this.cities    = this._dataApp.getCities();
+  }
+
+  ngOnChanges( changes: SimpleChanges ): void {
   }
 
   changeLang( lang: string ):void {
     this.lang = this.langs[ lang ];
+  }
+
+  updateCountry(): void {
+    const country        = this.countries.filter( row => row.id === this.destinyForm.value.country )[ 0 ];
+    const city           = this.cities.filter( row => row.id === this.destinyForm.value.city )[ 0 ];
+    this.summary.country = country.country;
+    this.summary.city    = city.city;
+    this._weatherService.getWhater( city.lat, city.long ).subscribe( res => {
+      this.summary.temp     = ( parseFloat( res.main.temp ) - this.gradeK ).toFixed( 2 );
+      this.summary.temp_min = ( parseFloat( res.main.temp_min ) - this.gradeK ).toFixed( 2 );
+      this.summary.temp_max = ( parseFloat( res.main.temp_max ) - this.gradeK ).toFixed( 2 );
+      this.summary.coin = city.coin
+    });
+
+    this._rateService.getRate( 'COP' ).subscribe( res => {
+      const { result } = res;
+      if( result === 'success' ) {
+        const { conversion_rates } = res;
+        this.summary.rate  = parseFloat( conversion_rates[ city.currency ] );
+        this.summary.total = ( this.summary.rate  * ( this.budgetForm.value.baget || 1 ) ).toFixed( 2 );
+      } else {
+        alert( 'Error al obtener el Tipo de cambio' );
+      }
+
+    });
+
   }
 
 }
