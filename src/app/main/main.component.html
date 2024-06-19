@@ -1,0 +1,118 @@
+<mat-card appearance="outlined" class="contanier mx-auto">
+  <mat-card-header class="bg-primary text-white p-2">
+    <div class="w-full col-12 d-flex justify-content-between">
+      <div class="">
+        <mat-card-title class="text-white">{{ lang.title }}</mat-card-title>
+        <mat-card-subtitle class="text-white">{{ lang.description }}</mat-card-subtitle>
+      </div>
+      <div class="text-end">
+        <button (click)="changeLang( 'es' )" class="btn bt-primary text-white mx-2">Español</button>
+        <button (click)="changeLang( 'gn' )" class="btn bt-primary text-white mx-2">Aleman</button>
+      </div>
+    </div>
+  </mat-card-header>
+  <mat-card-content>
+
+      <mat-stepper [linear]="isLinear" #stepper>
+
+        <mat-step [stepControl]="destinyForm">
+          <form [formGroup]="destinyForm">
+            <ng-template matStepLabel>{{ lang.destiny }}</ng-template>
+
+            <div class="d-flex p-4">
+              <div class="mx-auto">
+                <mat-form-field>
+                  <mat-label>{{ lang.country }}</mat-label>
+                  <mat-select formControlName="country">
+                    @for (country of countries; track country) {
+                      <mat-option [value]="country.id">{{country.country}}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <div class="mx-auto">
+                  @if( destinyForm.controls.country.touched && destinyForm.value.country === 0 ) {
+                    <p class="text-danger text-center"><span>*{{ lang.error_country }}</span></p>
+                  }
+                </div>
+              </div>
+
+              <div class="mx-auto">
+                <mat-form-field>
+                  <mat-label>{{ lang.city }}</mat-label>
+                  <mat-select formControlName="city">
+                    @for (city of cities; track city) {
+                      @if( destinyForm.value.country === city.country_id ){
+                        <mat-option [value]="city.id">{{city.city}}</mat-option>
+                      }
+                    }
+                  </mat-select>
+                </mat-form-field>
+                <div class="mx-auto">
+                  @if( destinyForm.controls.city.touched && destinyForm.value.city === 0 ) {
+                    <p class="text-danger text-center"><span>*{{ lang.error_city }}</span></p>
+                  }
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <button
+                mat-flat-button
+                matStepperNext
+                [disabled]=" destinyForm.value.country === 0 || destinyForm.value.city === 0 "
+              >
+              {{ lang.btn_next }}
+              </button>
+            </div>
+          </form>
+        </mat-step>
+
+        <mat-step [stepControl]="BudgetForm" label="{{ lang.destiniy }}" >
+          <form [formGroup]="BudgetForm">
+            <div class="d-flex p-4">
+              <div class="mx-auto">
+                <mat-form-field>
+                  <mat-label>{{ lang.baget }}</mat-label>
+                  <input type="number" matInput formControlName="baget" placeholder="{{ lang.baget_desp }}"
+                         required>
+                </mat-form-field>
+                <div class="mx-auto">
+                  @if( BudgetForm.controls.baget.touched && BudgetForm.value.baget === 0 ) {
+                    <p class="text-danger text-center"><span>*{{ lang.error_city }}</span></p>
+                  }
+                </div>
+              </div>
+            </div>
+            <div class="w-full d-flex justify-content-around">
+              <button mat-button matStepperPrevious>{{ lang.btn_back }}</button>
+              <button mat-button matStepperNext>{{ lang.btn_next }}</button>
+            </div>
+          </form>
+        </mat-step>
+
+        <mat-step>
+          <div class="p-4">
+            <div class="w-full d-flex flex-row">
+              <h2 class="text-center text-primary">{{ lang.sumary }}</h2>
+              <div class="w-full col-12 col-md-6">
+                <p>{{ lang.country }}: <b>{{ 'País' }}</b></p>
+                <p>{{ lang.city }}: <b>{{ 'Cuidad' }}</b></p>
+                <p>{{ lang.baget }}: <b>{{ '0.0' }}</b></p>
+              </div>
+              <div class="w-full col-12 col-md-6">
+                <p>{{ lang.wheater }}: <b>{{ '30°' }}</b></p>
+                <p>{{ lang.temperature }}: <b>{{ '15' }}</b></p>
+                <p>{{ lang.total }}: <b>{{ '100' }}</b></p>
+              </div>
+            </div>
+            <div class="w-full p-4 d-flex justify-content-around">
+              <button mat-button matStepperPrevious>{{ lang.btn_back }}</button>
+              <button mat-button (click)="stepper.reset()">{{ lang.btn_again }}</button>
+            </div>
+          </div>
+        </mat-step>
+
+      </mat-stepper>
+
+  </mat-card-content>
+</mat-card>
