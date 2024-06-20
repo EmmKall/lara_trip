@@ -19,8 +19,8 @@
           <form [formGroup]="destinyForm">
             <ng-template matStepLabel>{{ lang.destiny }}</ng-template>
 
-            <div class="d-flex p-4">
-              <div class="mx-auto">
+            <div class="d-flex p-md-4">
+              <div class="mx-md-auto mx-1">
                 <mat-form-field>
                   <mat-label>{{ lang.country }}</mat-label>
                   <mat-select formControlName="country">
@@ -29,7 +29,7 @@
                     }
                   </mat-select>
                 </mat-form-field>
-                <div class="mx-auto">
+                <div class="mx-md-auto mx-1">
                   @if( destinyForm.controls.country.touched && destinyForm.value.country === 0 ) {
                     <p class="text-danger text-center"><span>*{{ lang.error_country }}</span></p>
                   }
@@ -124,7 +124,7 @@
   <mat-card-content>
     <h1 class="text-center text-primary">{{ lang.table }}</h1>
   </mat-card-content>
-  <mat-card-content>
+  <mat-card-content class="overflow-auto">
 
     <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
       <!-- Position Column -->
