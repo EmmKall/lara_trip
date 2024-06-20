@@ -4,6 +4,4 @@ export interface City {
   city:       string;
   lat:        number;
   long:       number;
-  currency:   string;
-  coin:       string;
 }

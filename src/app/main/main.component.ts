@@ -75,11 +75,36 @@ export class MainComponent {
   ngOnInit(): void {
     this.langs = this._appService.getContent();
     this.lang  = this.langs[ 'es' ];
-    this.countries = this._dataApp.getContries();
-    this.cities    = this._dataApp.getCities();
+
+    this.getAllCountries();
+    this.getAllCities();
   }
 
   ngOnChanges( changes: SimpleChanges ): void {
+  }
+
+  getAllCountries():void {
+    this._dataApp.getAllContries().subscribe( res => {
+      const  { status } = res;
+      if( status === 200 ){
+        const { data } = res;
+        this.countries = data;
+      } else {
+        alert( 'Error al obtener Paises' );
+      }
+    });
+  }
+
+  getAllCities(): void {
+    this._dataApp.getAllCities().subscribe( res => {
+      const { status } = res;
+      if( status === 200 ){
+        const { data } = res;
+        this.cities = data;
+      } else {
+        alert( 'Error al obtener Ciudades' );
+      }
+    });
   }
 
   changeLang( lang: string ):void {
@@ -91,18 +116,19 @@ export class MainComponent {
     const city           = this.cities.filter( row => row.id === this.destinyForm.value.city )[ 0 ];
     this.summary.country = country.country;
     this.summary.city    = city.city;
+
     this._weatherService.getWhater( city.lat, city.long ).subscribe( res => {
       this.summary.temp     = ( parseFloat( res.main.temp ) - this.gradeK ).toFixed( 2 );
       this.summary.temp_min = ( parseFloat( res.main.temp_min ) - this.gradeK ).toFixed( 2 );
       this.summary.temp_max = ( parseFloat( res.main.temp_max ) - this.gradeK ).toFixed( 2 );
-      this.summary.coin = city.coin
+      this.summary.coin = country.coin
     });
 
     this._rateService.getRate( 'COP' ).subscribe( res => {
       const { result } = res;
       if( result === 'success' ) {
         const { conversion_rates } = res;
-        this.summary.rate  = parseFloat( conversion_rates[ city.currency ] );
+        this.summary.rate  = parseFloat( conversion_rates[ country.currency ] );
         this.summary.total = ( this.summary.rate  * ( this.budgetForm.value.baget || 1 ) ).toFixed( 2 );
       } else {
         alert( 'Error al obtener el Tipo de cambio' );
@@ -113,3 +139,7 @@ export class MainComponent {
   }
 
 }
+
+//Endpoints
+//Rate:    https://v6.exchangerate-api.com/v6/98701d2a663dc49dff228dcb/latest/COP
+//Wheater: https://api.openweathermap.org/data/2.5/weather?lat=51.5282284&lon=-0.4133945&appid=12182d433914731335cbdfc689d6cd8f
