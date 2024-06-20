@@ -78,7 +78,7 @@ export class MainComponent {
 
   private gradeK: number = 273.15;
 
-  displayedColumns: string[] = [ 'date', 'country', 'city', 'babget', 'temp', 'temp_min', 'temp_max', 'rate', 'total' ];
+  displayedColumns: string[] = [ 'date', 'country', 'coin', 'city', 'babget', 'temp', 'temp_min', 'temp_max', 'rate', 'total' ];
   dataSource = this.request;
 
   constructor(){

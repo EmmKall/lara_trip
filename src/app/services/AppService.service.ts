@@ -30,7 +30,8 @@ constructor() { }
         "btn_back": "Atras",
         "btn_again": "Volver al inicio",
         "wheater": "Clima",
-        "table": "Últimas consultas"
+        "table": "Últimas consultas",
+        "coin": "Moneda"
       },
       "gn": {
         "title": "Zielreise",
@@ -53,7 +54,8 @@ constructor() { }
         "btn_back": "angezogen",
         "btn_again": "Zurück nach oben",
         "wheater": "Klima",
-        "table": "Aktuelle Anfragen"
+        "table": "Aktuelle Anfragen",
+        "coin": "Währung"
       }
     };
   }
