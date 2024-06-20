@@ -145,7 +145,7 @@
       <!-- Position Column -->
       <ng-container matColumnDef="babget">
         <th mat-header-cell *matHeaderCellDef> {{ lang.baget }} </th>
-        <td mat-cell *matCellDef="let element"> {{element.babget}} </td>
+        <td mat-cell *matCellDef="let element"> {{element.babget | currency }} </td>
       </ng-container>
       <!-- Position Column -->
       <ng-container matColumnDef="temp">

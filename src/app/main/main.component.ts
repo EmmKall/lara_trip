@@ -121,7 +121,7 @@ export class MainComponent {
   }
 
   getLastRequest(): void {
-    this._dataApp.getLastRequest().subscribe( res => { console.log( res );
+    this._dataApp.getLastRequest().subscribe( res => {
       const { status } = res;
       if( status === 200 ){
         const { data } = res;
@@ -155,16 +155,13 @@ export class MainComponent {
   }
 
   updateRate(): void {
-    this._rateService.getRate( 'COP' ).subscribe( res => { console.log( res );
+    this._rateService.getRate( 'COP' ).subscribe( res => {
       const { result } = res;
       if( result === 'success' ) {
         const country           = this.countries.filter( row => row.id === this.destinyForm.value.country )[ 0 ];
         const { conversion_rates } = res;
         this.summary.rate  = parseFloat( conversion_rates[ country.currency ] );
         this.summary.total = ( this.summary.rate  * ( this.budgetForm.value.baget || 1 ) ).toFixed( 2 );
-        console.log( this.summary.rate );
-        console.log( this.budgetForm.value.baget );
-        console.log( this.summary.total );
         this.insertRequest();
       } else {
         this._helper.showMessage( 'top-end', 'error', 'Error al consultar tipo de cambio', 2000 );
@@ -186,7 +183,7 @@ export class MainComponent {
       coin:       this.summary.coin,
     };
 
-    this._dataApp.saverRequest( data ).subscribe( res => { console.log( res );
+    this._dataApp.saverRequest( data ).subscribe( res => {
       const { status } = res;
       if( status === 200 ){
         this._helper.showMessage( 'top-end', 'success', 'Consulta guardada', 2000 );
