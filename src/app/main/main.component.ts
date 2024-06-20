@@ -15,6 +15,7 @@ import { DataAppService } from '../services/dataApp.service';
 import { WeatherServiceService } from '../services/weatherService.service';
 import { RateService } from '../services/rate.service';
 import { CommonModule } from '@angular/common';
+import { HelperService } from '../services/Helper.service';
 
 @Component({
   selector: 'app-main',
@@ -42,6 +43,7 @@ export class MainComponent {
   private _dataApp        = inject( DataAppService );
   private _weatherService = inject( WeatherServiceService );
   private _rateService    = inject( RateService );
+  private _helper         = inject( HelperService );
 
   isLinear: boolean = false;
 
@@ -101,7 +103,7 @@ export class MainComponent {
         const { data } = res;
         this.countries = data;
       } else {
-        alert( 'Error al obtener Paises' );
+        this._helper.showMessage( 'top-end', 'error', 'Error al obtener paises', 2000 );
       }
     });
   }
@@ -113,20 +115,20 @@ export class MainComponent {
         const { data } = res;
         this.cities = data;
       } else {
-        alert( 'Error al obtener Ciudades' );
+        this._helper.showMessage( 'top-end', 'error', 'Error al obtener ciudades', 2000 );
       }
     });
   }
 
   getLastRequest(): void {
-    this._dataApp.getLastRequest().subscribe( res => {
+    this._dataApp.getLastRequest().subscribe( res => { console.log( res );
       const { status } = res;
       if( status === 200 ){
         const { data } = res;
         this.request = data;
         this.dataSource = this.request;
       } else {
-        alert( 'Error al obtener Ciudades' );
+        this._helper.showMessage( 'top-end', 'error', 'Error al obtener últimas consultas', 2000 );
       }
     });
   }
@@ -147,21 +149,28 @@ export class MainComponent {
       this.summary.temp     = ( parseFloat( res.main.temp ) - this.gradeK ).toFixed( 2 );
       this.summary.temp_min = ( parseFloat( res.main.temp_min ) - this.gradeK ).toFixed( 2 );
       this.summary.temp_max = ( parseFloat( res.main.temp_max ) - this.gradeK ).toFixed( 2 );
-      this.summary.coin = country.coin
+      this.summary.coin     = country.coin;
     });
 
-    this._rateService.getRate( 'COP' ).subscribe( res => {
+  }
+
+  updateRate(): void {
+    this._rateService.getRate( 'COP' ).subscribe( res => { console.log( res );
       const { result } = res;
-      if( result === 200 ) {
+      if( result === 'success' ) {
+        const country           = this.countries.filter( row => row.id === this.destinyForm.value.country )[ 0 ];
         const { conversion_rates } = res;
         this.summary.rate  = parseFloat( conversion_rates[ country.currency ] );
         this.summary.total = ( this.summary.rate  * ( this.budgetForm.value.baget || 1 ) ).toFixed( 2 );
-        this.getLastRequest();
+        console.log( this.summary.rate );
+        console.log( this.budgetForm.value.baget );
+        console.log( this.summary.total );
+        this.insertRequest();
       } else {
-        alert( 'Error al obtener el Tipo de cambio' );
+        this._helper.showMessage( 'top-end', 'error', 'Error al consultar tipo de cambio', 2000 );
       }
-
     });
+
 
   }
 
@@ -176,13 +185,14 @@ export class MainComponent {
       total:      this.summary.total,
       coin:       this.summary.coin,
     };
-    console.log( data );
+
     this._dataApp.saverRequest( data ).subscribe( res => { console.log( res );
       const { status } = res;
-      if( status === 20 ){
-        alert( 'Consulta guardada' );
+      if( status === 200 ){
+        this._helper.showMessage( 'top-end', 'success', 'Consulta guardada', 2000 );
+        this.getLastRequest();
       } else {
-        alert( 'Error al guardar datos' );
+        this._helper.showMessage( 'top-end', 'error', 'Error al guardar consultar', 2000 );
       }
     });
 

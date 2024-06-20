@@ -86,7 +86,7 @@
             </div>
             <div class="w-full d-flex justify-content-around">
               <button mat-button matStepperPrevious>{{ lang.btn_back }}</button>
-              <button mat-button matStepperNext [disabled]="budgetForm.value.baget === 0" (click)="insertRequest()" >{{ lang.btn_next }}</button>
+              <button mat-button matStepperNext [disabled]="budgetForm.value.baget === 0" (click)="updateRate()" >{{ lang.btn_next }}</button>
             </div>
           </form>
         </mat-step>
