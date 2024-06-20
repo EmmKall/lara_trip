@@ -73,6 +73,7 @@ export class MainComponent {
   };
   langs: any = this._appService.getContent();
   lang: any  = {};
+  langMenu: Array<any> = [ { key: 'es', lang: 'Español' }, { key: 'gn', lang: 'Deutsch'} ];
 
   weather: any = {};
 
@@ -80,6 +81,8 @@ export class MainComponent {
 
   displayedColumns: string[] = [ 'date', 'country', 'coin', 'city', 'babget', 'temp', 'temp_min', 'temp_max', 'rate', 'total' ];
   dataSource = this.request;
+
+  showList: boolean = true;
 
   constructor(){
   }
@@ -133,8 +136,12 @@ export class MainComponent {
     });
   }
 
-  changeLang( lang: string ):void {
-    this.lang = this.langs[ lang ];
+  changeLang( e: any ):void {
+    this.lang = this.langs[ e.target.value ];
+  }
+
+  chageShowList(): void {
+    this.showList = !this.showList;
   }
 
   updateCountry(): void {
