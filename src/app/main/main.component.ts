@@ -7,17 +7,20 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTableModule } from '@angular/material/table';
 import { AppServiceService } from '../services/AppService.service';
 import { Country } from '../interfaces/Country';
 import { City } from '../interfaces/City';
 import { DataAppService } from '../services/dataApp.service';
 import { WeatherServiceService } from '../services/weatherService.service';
 import { RateService } from '../services/rate.service';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-main',
   standalone: true,
   imports: [
+    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     MatCardModule,
@@ -27,6 +30,7 @@ import { RateService } from '../services/rate.service';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatTableModule,
   ],
   templateUrl: './main.component.html',
   styleUrl: './main.component.css'
@@ -51,16 +55,19 @@ export class MainComponent {
 
   countries: Country[] = [];
   cities:    City[]    = [];
+  request: any[]       = [];
 
   summary: any = {
-    country:  '',
-    city:     '',
-    temp:     0,
-    temp_min: 0,
-    temp_max: 0,
-    rate:     0,
-    total:    0,
-    coin:     '',
+    country_id: 0,
+    country:   '',
+    city_id:   0,
+    city:      '',
+    temp:      0,
+    temp_min:  0,
+    temp_max:  0,
+    rate:      0,
+    total:     0,
+    coin:      '',
   };
   langs: any = this._appService.getContent();
   lang: any  = {};
@@ -68,6 +75,9 @@ export class MainComponent {
   weather: any = {};
 
   private gradeK: number = 273.15;
+
+  displayedColumns: string[] = [ 'date', 'country', 'city', 'babget', 'temp', 'temp_min', 'temp_max', 'rate', 'total' ];
+  dataSource = this.request;
 
   constructor(){
   }
@@ -78,6 +88,7 @@ export class MainComponent {
 
     this.getAllCountries();
     this.getAllCities();
+    this.getLastRequest();
   }
 
   ngOnChanges( changes: SimpleChanges ): void {
@@ -107,15 +118,30 @@ export class MainComponent {
     });
   }
 
+  getLastRequest(): void {
+    this._dataApp.getLastRequest().subscribe( res => {
+      const { status } = res;
+      if( status === 200 ){
+        const { data } = res;
+        this.request = data;
+        this.dataSource = this.request;
+      } else {
+        alert( 'Error al obtener Ciudades' );
+      }
+    });
+  }
+
   changeLang( lang: string ):void {
     this.lang = this.langs[ lang ];
   }
 
   updateCountry(): void {
-    const country        = this.countries.filter( row => row.id === this.destinyForm.value.country )[ 0 ];
-    const city           = this.cities.filter( row => row.id === this.destinyForm.value.city )[ 0 ];
-    this.summary.country = country.country;
-    this.summary.city    = city.city;
+    const country           = this.countries.filter( row => row.id === this.destinyForm.value.country )[ 0 ];
+    const city              = this.cities.filter( row => row.id === this.destinyForm.value.city )[ 0 ];
+    this.summary.country_id = country.id;
+    this.summary.country    = country.country;
+    this.summary.city_id    = city.id;
+    this.summary.city       = city.city;
 
     this._weatherService.getWhater( city.lat, city.long ).subscribe( res => {
       this.summary.temp     = ( parseFloat( res.main.temp ) - this.gradeK ).toFixed( 2 );
@@ -126,14 +152,38 @@ export class MainComponent {
 
     this._rateService.getRate( 'COP' ).subscribe( res => {
       const { result } = res;
-      if( result === 'success' ) {
+      if( result === 200 ) {
         const { conversion_rates } = res;
         this.summary.rate  = parseFloat( conversion_rates[ country.currency ] );
         this.summary.total = ( this.summary.rate  * ( this.budgetForm.value.baget || 1 ) ).toFixed( 2 );
+        this.getLastRequest();
       } else {
         alert( 'Error al obtener el Tipo de cambio' );
       }
 
+    });
+
+  }
+
+  insertRequest(): void {
+    const data = {
+      country_id: this.summary.country_id,
+      city_id:    this.summary.city_id,
+      babget:     this.budgetForm.value.baget,
+      temp:       this.summary.temp,
+      temp_min:   this.summary.temp_min,
+      temp_max:   this.summary.temp_max,
+      total:      this.summary.total,
+      coin:       this.summary.coin,
+    };
+    console.log( data );
+    this._dataApp.saverRequest( data ).subscribe( res => { console.log( res );
+      const { status } = res;
+      if( status === 20 ){
+        alert( 'Consulta guardada' );
+      } else {
+        alert( 'Error al guardar datos' );
+      }
     });
 
   }
@@ -143,3 +193,4 @@ export class MainComponent {
 //Endpoints
 //Rate:    https://v6.exchangerate-api.com/v6/98701d2a663dc49dff228dcb/latest/COP
 //Wheater: https://api.openweathermap.org/data/2.5/weather?lat=51.5282284&lon=-0.4133945&appid=12182d433914731335cbdfc689d6cd8f
+//         https://app.exchangerate-api.com/dashboard

@@ -32,4 +32,24 @@ export class DataAppService {
     );
   }
 
+  getLastRequest(): Observable<any>{
+    const url = `${this.url}trip`;
+    return this._http.get<any>( url )
+    .pipe(
+      catchError( error => {
+        return throwError( error )
+      })
+    );
+  }
+
+  saverRequest( data: any ): Observable<any>{
+    const url = `${this.url}trip`;
+    return this._http.post<any>( url, data )
+    .pipe(
+      catchError( error => {
+        return throwError( error )
+      })
+    );
+  }
+
 }

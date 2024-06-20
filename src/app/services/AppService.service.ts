@@ -29,7 +29,8 @@ constructor() { }
         "btn_next": "Siguiente",
         "btn_back": "Atras",
         "btn_again": "Volver al inicio",
-        "wheater": "Clima"
+        "wheater": "Clima",
+        "table": "Últimas consultas"
       },
       "gn": {
         "title": "Zielreise",
@@ -51,7 +52,8 @@ constructor() { }
         "btn_next": "Nachfolgend",
         "btn_back": "angezogen",
         "btn_again": "Zurück nach oben",
-        "wheater": "Klima"
+        "wheater": "Klima",
+        "table": "Aktuelle Anfragen"
       }
     };
   }
